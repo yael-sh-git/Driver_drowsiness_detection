@@ -41,11 +41,11 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 model = tf.keras.models.load_model('drowsiness_detection_model.h5')
 
 def predict_drowsiness(face_image):
-    face_image = cv2.resize(face_image, (150, 150))  # שינוי גודל ל-150x150 כפי שנעשה באימון
-    face_image = face_image.astype('float32') / 255.0  # נרמול
-    face_image = np.expand_dims(face_image, axis=0)  # הוספת מימד עבור הבאטץ'
+    face_image = cv2.resize(face_image, (150, 150))  # Resize to 150x150 as done during training
+    face_image = face_image.astype('float32') / 255.0  # Normalization
+    face_image = np.expand_dims(face_image, axis=0)  # Add dimension for the batch
     prediction = model.predict(face_image)
-    return prediction[0][0] > 0.5  # אם הערך המנובא גבוה מ-0.5, נחשב את הפנים כמנומנמות
+    return prediction[0][0] > 0.5  # If the predicted value is greater than 0.5, consider the face drowsy
 
 @app.route('/detect', methods=['POST'])
 def detect():
@@ -77,11 +77,11 @@ def detect():
 		if mouEAR > MOU_AR_THRESH:
 			yawn = True
 
-		# חיתוך אזור הפנים
+		# Cutting the facial area
 		(x, y, w, h) = (rect.left(), rect.top(), rect.width(), rect.height())
 		face_image = frame[y:y + h, x:x + w]
 
-		# ניבוי אם הנהג מנומנם על ידי המודל
+		# Prediction if the driver is drowsy by the model
 		if predict_drowsiness(face_image):
 			drowsy = True
 
